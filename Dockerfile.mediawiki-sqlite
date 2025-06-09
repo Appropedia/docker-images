@@ -1,0 +1,144 @@
+#This dockerfile creates an image containing a mediawiki server that is suitable to replicate the
+#appropedia.org wiki. This server is configured to use SQLite and includes all needed extensions.
+
+#Note: This image is just the server software. It doesn't contain any wiki contents, such as
+#articles or images.
+
+FROM mediawiki:1.43.1
+
+#Configure external repositories and install elasticsearch.
+RUN apt-get update &&\
+    apt-get install -y wget gpg &&\
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |\
+        gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg &&\
+    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg]"\
+        "https://artifacts.elastic.co/packages/9.x/apt stable main" |\
+        tee /etc/apt/sources.list.d/elastic-9.x.list &&\
+    apt-get update && apt-get install -y elasticsearch
+
+#Install composer.
+RUN apt-get install -y unzip
+COPY build-scripts tmp
+RUN tmp/download-composer.sh
+RUN php composer.phar update --no-dev
+
+#Install semantic extensions.
+RUN tmp/composer-install.sh mediawiki/semantic-media-wiki 5.0.1
+RUN php composer.phar config -f composer.local.json allow-plugins.composer/installers true &&\
+    tmp/composer-install.sh mediawiki/semantic-result-formats 5.0.0
+
+#Instal skins.
+RUN tmp/gerrit-install.sh skins/Vector REL1_43
+
+#Install special page extensions.
+RUN tmp/gerrit-install.sh extensions/CheckUser REL1_43 &&\
+    php composer.phar install -d extensions/CheckUser --no-dev
+RUN tmp/gerrit-install.sh extensions/Echo REL1_43
+RUN tmp/gerrit-install.sh extensions/EditAccount REL1_43
+RUN tmp/gerrit-install.sh extensions/Interwiki REL1_43
+RUN tmp/gerrit-install.sh extensions/Linter REL1_43
+RUN tmp/gerrit-install.sh extensions/Nuke REL1_43
+RUN tmp/gerrit-install.sh extensions/ReplaceText REL1_43
+RUN tmp/github-install.sh miraheze/RottenLinks extensions/RottenLinks main
+RUN tmp/gerrit-install.sh extensions/TemplateSandbox REL1_43
+RUN tmp/gerrit-install.sh extensions/UserMerge REL1_43
+
+#Install editor extensions.
+RUN tmp/gerrit-install.sh extensions/CodeEditor REL1_43
+RUN tmp/gerrit-install.sh extensions/CodeMirror REL1_43
+RUN tmp/gerrit-install.sh extensions/VisualEditor REL1_43
+RUN tmp/gerrit-install.sh extensions/WikiEditor REL1_43
+
+#Install parser hook extensions.
+RUN tmp/gerrit-install.sh extensions/CategoryLockdown REL1_43
+RUN tmp/gerrit-install.sh extensions/CategoryTree REL1_43
+RUN tmp/gerrit-install.sh extensions/Cite REL1_43
+RUN tmp/gerrit-install.sh extensions/ExternalData REL1_43 &&\
+    php composer.phar install -d extensions/ExternalData --no-dev
+RUN tmp/gerrit-install.sh extensions/ImageMap REL1_43
+RUN tmp/gerrit-install.sh extensions/InputBox REL1_43
+RUN tmp/gerrit-install.sh extensions/InterwikiExtracts REL1_43
+RUN tmp/composer-install.sh mediawiki/maps 11.0.1
+RUN tmp/gerrit-install.sh extensions/Math REL1_43
+RUN tmp/gerrit-install.sh extensions/MyVariables REL1_43
+RUN tmp/gerrit-install.sh extensions/NoTitle REL1_43
+RUN tmp/gerrit-install.sh extensions/NumberFormat REL1_43
+RUN tmp/gerrit-install.sh extensions/PageAuthors REL1_43
+RUN tmp/gerrit-install.sh extensions/ParserFunctions REL1_43
+RUN tmp/gerrit-install.sh extensions/Quiz REL1_43
+RUN tmp/gerrit-install.sh extensions/Scribunto REL1_43
+RUN tmp/gerrit-install.sh extensions/SearchParserFunction REL1_43
+RUN tmp/gerrit-install.sh extensions/SearchThumbs REL1_43
+RUN tmp/gerrit-install.sh extensions/SemanticRESTAPI REL1_43
+RUN tmp/gerrit-install.sh extensions/StandardWikitext REL1_43
+RUN tmp/gerrit-install.sh extensions/SyntaxHighlight_GeSHi REL1_43
+RUN tmp/gerrit-install.sh extensions/TemplateData REL1_43
+RUN tmp/gerrit-install.sh extensions/TemplateStyles REL1_43 &&\
+    php composer.phar install -d extensions/TemplateStyles --no-dev
+RUN tmp/gerrit-install.sh extensions/UseResource REL1_43
+RUN tmp/gerrit-install.sh extensions/Widgets REL1_43 &&\
+    php composer.phar install -d extensions/Widgets --no-dev
+
+#Install media handler extensions.
+RUN tmp/gerrit-install.sh extensions/PdfHandler REL1_43
+
+#Install API extensions.
+RUN tmp/gerrit-install.sh extensions/PageImages REL1_43
+
+#Install other extensions.
+RUN tmp/gerrit-install.sh extensions/Analytics REL1_43 &&\
+    php composer.phar install -d extensions/Analytics --no-dev
+RUN tmp/github-install.sh Appropedia/extension extensions/Appropedia main &&\
+    php composer.phar install -d extensions/Appropedia --no-dev
+RUN tmp/github-install.sh wikimedia/mediawiki-extensions-CirrusSearch extensions/CirrusSearch REL1_43 &&\
+    php composer.phar install -d extensions/CirrusSearch --no-dev
+RUN tmp/gerrit-install.sh extensions/cldr REL1_43
+RUN tmp/gerrit-install.sh extensions/CloudflarePurge REL1_43
+RUN tmp/gerrit-install.sh extensions/CookieWarning REL1_43
+RUN tmp/gerrit-install.sh extensions/DiscussionTools REL1_43
+RUN tmp/github-install.sh wikimedia/mediawiki-extensions-Elastica extensions/Elastica REL1_43 &&\
+    php composer.phar install -d extensions/Elastica --no-dev
+RUN tmp/gerrit-install.sh extensions/Gadgets REL1_43
+RUN tmp/gerrit-install.sh extensions/GoogleTagManager REL1_43
+RUN tmp/gerrit-install.sh extensions/GoogleTranslate REL1_43
+RUN tmp/gerrit-install.sh extensions/HTMLPurifier REL1_43 &&\
+    php composer.phar install -d extensions/HTMLPurifier --no-dev
+RUN tmp/gerrit-install.sh extensions/MultimediaViewer REL1_43
+RUN tmp/gerrit-install.sh extensions/PageLanguage REL1_43
+RUN tmp/gerrit-install.sh extensions/Popups REL1_43
+RUN tmp/github-install.sh gesinn-it/QRLite extensions/QRLite master &&\
+    php composer.phar config -d extensions/QRLite allow-plugins.composer/installers true &&\
+    php composer.phar install -d extensions/QRLite --no-dev
+RUN tmp/gerrit-install.sh extensions/QuickInstantCommons REL1_43
+RUN tmp/gerrit-install.sh extensions/ReadAloud REL1_43
+RUN tmp/gerrit-install.sh extensions/SandboxLink REL1_43
+RUN tmp/gerrit-install.sh extensions/TextExtracts REL1_43
+RUN tmp/gerrit-install.sh extensions/Thanks REL1_43
+RUN tmp/gerrit-install.sh extensions/UniversalLanguageSelector REL1_43
+RUN tmp/gerrit-install.sh extensions/UploadWizard REL1_43
+
+#Configure mediawiki for use with SQLite (generates LocalSettings.php).
+USER www-data
+RUN php maintenance/run.php install appropedia admin --pass appropedia-local --dbtype sqlite\
+    --dbpath /var/www/data --scriptpath "" --skins Vector
+USER root
+
+#Append additional configurations to LocalSettings.php.
+RUN --mount=source=LocalSettings.mediawiki-sqlite.php,target=LocalSettings.mediawiki-sqlite.php \
+    cat LocalSettings.mediawiki-sqlite.php >> LocalSettings.php
+
+#Update the database in preparation for adding content.
+RUN php maintenance/run.php update --quick
+
+#Cleanup unneeded files.
+RUN rm -rf tmp
+
+#Delete the default main page so that it can be restored with a backup.
+RUN echo Main_Page | php maintenance/run.php deleteBatch
+
+#Add the logos from the Appropedia website.
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-1x.png logos/Appropedia-1x.png
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-icon.svg logos/Appropedia-icon.svg
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-wordmark.svg logos/Appropedia-wordmark.svg
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-tagline.svg logos/Appropedia-tagline.svg
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/apple-touch-icon.png logos/apple-touch-icon.png

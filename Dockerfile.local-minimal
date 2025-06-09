@@ -1,0 +1,21 @@
+#This dockerfile creates an image containing a replica of the appropedia.org wiki that can be
+#accessed locally with a browser.
+
+#This is the minimal version and includes just the text of the articles. Images and other files are
+#downloaded directly from appropedia.org.
+
+FROM mediawiki-sqlite
+
+#Populate the server by importing contents from a backup file.
+ARG BACKUP_FILE
+RUN --mount=source=$BACKUP_FILE,target=$BACKUP_FILE \
+    php maintenance/run.php importDump --no-updates $BACKUP_FILE
+
+#Run other maintenance scripts after importing the backup.
+RUN php maintenance/run.php rebuildrecentchanges
+RUN php maintenance/run.php initSiteStats --update
+# php maintenance/run.php rebuildall #Note: Takes very long and is probably not needed
+
+#Append additional configurations to LocalSettings.php.
+RUN --mount=source=LocalSettings.local-minimal.php,target=LocalSettings.local-minimal.php \
+    cat LocalSettings.local-minimal.php >> LocalSettings.php
