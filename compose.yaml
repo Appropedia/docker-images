@@ -1,16 +1,16 @@
-#Docker compose file used for building the images contained in this repository.
-#
-#Note: This is not intended for server deployment.
+#Docker compose file used for building and running the images contained in this repository.
 services:
   mediawiki-sqlite:
-    image: mediawiki-sqlite
+    image: appropedia-mediawiki-sqlite
     build:
       dockerfile: Dockerfile.mediawiki-sqlite
   local-minimal:
-    image: local-minimal
+    image: appropedia-local-minimal
     build:
       dockerfile: Dockerfile.local-minimal
       additional_contexts:
         mediawiki-sqlite: "service:mediawiki-sqlite"
       args:
         - BACKUP_FILE=current-text.xml.gz
+    ports:
+      - 80:80
