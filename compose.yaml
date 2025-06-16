@@ -14,3 +14,13 @@ services:
         - BACKUP_FILE=current-text.xml.gz
     ports:
       - 80:80
+  local-full:
+    image: appropedia-local-full
+    build:
+      dockerfile: Dockerfile.local-full
+      additional_contexts:
+        mediawiki-sqlite: "service:mediawiki-sqlite"
+      args:
+        - BACKUP_FILE=current-with-files.xml.gz
+    ports:
+      - 80:80

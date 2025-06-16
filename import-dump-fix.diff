@@ -1,0 +1,30 @@
+diff --git a/includes/import/ImportableUploadRevisionImporter.php b/includes/import/ImportableUploadRevisionImporter.php
+index 487b53049c7..81901ed3194 100644
+--- a/includes/import/ImportableUploadRevisionImporter.php
++++ b/includes/import/ImportableUploadRevisionImporter.php
+@@ -50,21 +50,21 @@ class ImportableUploadRevisionImporter implements UploadRevisionImporter {
+ 		$localRepo = MediaWikiServices::getInstance()->getRepoGroup()->getLocalRepo();
+ 		if ( $archiveName ) {
+ 			$this->logger->debug( __METHOD__ . ": Importing archived file as $archiveName" );
+-			$file = OldLocalFile::newFromArchiveName( $importableRevision->getTitle(),
++			$file = OldLocalFile::newFromArchiveName( $importableRevision->getFilename(),
+ 				$localRepo, $archiveName );
+ 		} else {
+-			$file = $localRepo->newFile( $importableRevision->getTitle() );
++			$file = $localRepo->newFile( $importableRevision->getFilename() );
+ 			$file->load( IDBAccessObject::READ_LATEST );
+ 			$this->logger->debug( __METHOD__ . ': Importing new file as ' . $file->getName() );
+ 			if ( $file->exists() && $file->getTimestamp() > $importableRevision->getTimestamp() ) {
+ 				$archiveName = $importableRevision->getTimestamp() . '!' . $file->getName();
+-				$file = OldLocalFile::newFromArchiveName( $importableRevision->getTitle(),
++				$file = OldLocalFile::newFromArchiveName( $importableRevision->getFilename(),
+ 					$localRepo, $archiveName );
+ 				$this->logger->debug( __METHOD__ . ": File already exists; importing as $archiveName" );
+ 			}
+ 		}
+ 		if ( !$file ) {
+-			$this->logger->debug( __METHOD__ . ': Bad file for ' . $importableRevision->getTitle() );
++			$this->logger->debug( __METHOD__ . ': Bad file for ' . $importableRevision->getFilename() );
+ 			return $this->newNotOkStatus();
+ 		}
+ 
