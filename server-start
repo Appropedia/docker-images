@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#Start background services.
+su elasticsearch -s /bin/bash -c /usr/share/elasticsearch/bin/elasticsearch &
+
+#Start the server.
+apache2-foreground &
+
+#Wait for any process to exit.
+wait -n
+
+#Exit with the status of the process that exited first.
+exit $?
