@@ -90,6 +90,10 @@ RUN tmp/gerrit-install.sh extensions/Analytics REL1_43 &&\
     php composer.phar install -d extensions/Analytics --no-dev
 RUN tmp/github-install.sh Appropedia/extension extensions/Appropedia main &&\
     php composer.phar install -d extensions/Appropedia --no-dev
+RUN --mount=source=patches/appropedia-ext-fix-arraymap.diff,target=patch.diff \
+    patch -p1 -d extensions/Appropedia < patch.diff
+RUN --mount=source=patches/appropedia-ext-remove-special-pages.diff,target=patch.diff \
+    patch -p1 -d extensions/Appropedia < patch.diff
 RUN tmp/github-install.sh wikimedia/mediawiki-extensions-CirrusSearch extensions/CirrusSearch REL1_43 &&\
     php composer.phar install -d extensions/CirrusSearch --no-dev
 RUN tmp/gerrit-install.sh extensions/cldr REL1_43
@@ -117,6 +121,16 @@ RUN tmp/gerrit-install.sh extensions/Thanks REL1_43
 RUN tmp/gerrit-install.sh extensions/UniversalLanguageSelector REL1_43
 RUN tmp/gerrit-install.sh extensions/UploadWizard REL1_43
 
+#Cleanup unneeded files.
+RUN rm -rf tmp
+
+#Add the logos from the Appropedia website.
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-1x.png logos/Appropedia-1x.png
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-icon.svg logos/Appropedia-icon.svg
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-wordmark.svg logos/Appropedia-wordmark.svg
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-tagline.svg logos/Appropedia-tagline.svg
+ADD --chown=www-data:www-data https://www.appropedia.org/logos/apple-touch-icon.png logos/apple-touch-icon.png
+
 #Configure mediawiki for use with SQLite (generates LocalSettings.php).
 USER www-data
 RUN php maintenance/run.php install appropedia admin --pass appropedia-local --dbtype sqlite\
@@ -130,18 +144,8 @@ RUN --mount=source=LocalSettings.mediawiki-sqlite.php,target=LocalSettings.media
 #Update the database in preparation for adding content.
 RUN php maintenance/run.php update --quick
 
-#Cleanup unneeded files.
-RUN rm -rf tmp
-
 #Delete the default main page so that it can be restored with a backup.
 RUN echo Main_Page | php maintenance/run.php deleteBatch
-
-#Add the logos from the Appropedia website.
-ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-1x.png logos/Appropedia-1x.png
-ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-icon.svg logos/Appropedia-icon.svg
-ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-wordmark.svg logos/Appropedia-wordmark.svg
-ADD --chown=www-data:www-data https://www.appropedia.org/logos/Appropedia-tagline.svg logos/Appropedia-tagline.svg
-ADD --chown=www-data:www-data https://www.appropedia.org/logos/apple-touch-icon.png logos/apple-touch-icon.png
 
 #Configure the startup script.
 COPY server-start /usr/local/bin/

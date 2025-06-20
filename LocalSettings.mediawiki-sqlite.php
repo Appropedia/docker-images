@@ -38,6 +38,24 @@ $wgEnableUploads = true;
 $wgUseImageMagick = true;
 $wgMaxShellMemory = 0;
 
+$wgLanguageCode = "en";
+
+## Allow users to create their own skins. For more info see:
+## http://meta.wikimedia.org/wiki/Help:User_style
+$wgAllowUserJs = true;
+$wgAllowUserCss = true;
+
+## For attaching licensing metadata to pages, and displaying an
+## appropriate copyright notice / icon. GNU Free Documentation
+## License and Creative Commons licenses are supported so far.
+# $wgEnableCreativeCommonsRdf = true;
+$wgRightsPage = "Appropedia:Copyrights";
+$wgRightsUrl = "$wgServer/Appropedia:Copyrights";
+$wgRightsText = "CC-BY-SA-4.0";
+$wgRightsIcon = "$wgScriptPath/resources/assets/licenses/cc-by-sa.png";
+$wgFooterIcons['copyright']['copyright'] = false;
+$wgFooterIcons['poweredby']['mediawiki'] = false;
+
 ##################
 #   NAMESPACES   #
 ##################
@@ -95,6 +113,57 @@ $wgSitemapNamespaces = [
 $wgExtraSignatureNamespaces = [
 	NS_PROJECT,
 ];
+
+############
+#   MISC   #
+############
+
+$wgJobRunRate = 0; // Jobs are run from cron for performance
+
+$wgExternalLinkTarget = '_blank';
+
+$wgArticleCountMethod = 'any';
+
+$wgDefaultUserOptions['showhiddencats'] = true;
+$wgDefaultUserOptions['search-match-redirect'] = false;
+
+$wgGroupPermissions['*']['upload'] = true;
+$wgGroupPermissions['*']['apihighlimits'] = true;
+
+$wgGroupPermissions['autoconfirmed']['delete'] = true;
+$wgGroupPermissions['sysop']['editsitejs'] = true;
+$wgGroupPermissions['sysop']['editsitecss'] = true;
+$wgGroupPermissions['sysop']['userrights'] = true;
+
+// Unlimited stashbasehtml for Kiwix, see https://github.com/openzim/mwoffliner/issues/2151
+unset( $wgRateLimits['stashbasehtml']['ip'] );
+
+$wgRestrictDisplayTitle = false;
+
+$wgFixDoubleRedirects = true;
+
+$wgEnableAutoRotation = false;
+
+$wgAutoConfirmAge = 60 * 60 * 2; // 2 hours
+$wgAutoConfirmCount = 3; // 3 edits required
+
+$wgExpensiveParserFunctionLimit = 1000;
+
+$wgUseRCPatrol = false;
+$wgUseNPPatrol = false;
+$wgUseFilePatrol = false;
+
+$wgHideInterlanguageLinks = true;
+
+$wgMaxImageArea = 2.5e7;
+
+$wgCrossSiteAJAXdomains = ['*'];
+
+// Limit the thumbnails to reduce file usage
+$wgImageLimits = [ [ 800, 600 ] ];
+$wgDefaultUserOptions['imagesize'] = 0;
+$wgThumbLimits = [ 300 ];
+$wgDefaultUserOptions['thumbsize'] = 0;
 
 #############
 #   SKINS   #

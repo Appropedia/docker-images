@@ -1,0 +1,13 @@
+diff --git a/extension.json b/extension.json
+index 001c2f5..50ea939 100644
+--- a/extension.json
++++ b/extension.json
+@@ -35,7 +35,7 @@
+ 	"Hooks": {
+ 		"BeforePageDisplay": "Appropedia::onBeforePageDisplay",
+ 		"LinkerMakeExternalLink": "Appropedia::onLinkerMakeExternalLink",
+-		"ParserFirstCallInit": "Appropedia::onParserFirstCallInit",
++		"ParserFirstCallInit": "AppropediaMisc::onParserFirstCallInit",
+ 		"SkinTemplateNavigation::Universal": "AppropediaNavigation::onSkinTemplateNavigationUniversal",
+ 		"SidebarBeforeOutput": "AppropediaNavigation::onSidebarBeforeOutput",
+ 		"SkinAddFooterLinks": "AppropediaNavigation::onSkinAddFooterLinks",
