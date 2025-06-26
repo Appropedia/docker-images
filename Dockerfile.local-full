@@ -6,8 +6,8 @@
 FROM mediawiki-sqlite
 
 #Apply fixes so that the backup file can be imported.
-RUN --mount=source=import-dump-fix.diff,target=import-dump-fix.diff \
-    patch -p1 < import-dump-fix.diff
+RUN --mount=source=patches/import-dump-fix.diff,target=patch.diff \
+    patch -p1 < patch.diff
 
 #Populate the server by importing contents from a backup.
 ARG BACKUP_FILE
@@ -20,5 +20,5 @@ RUN php maintenance/run.php initSiteStats --update
 # php maintenance/run.php rebuildall #Note: Takes very long and is probably not needed
 
 #Append additional configurations to LocalSettings.php
-RUN --mount=source=LocalSettings.local-full.php,target=LocalSettings.local-full.php \
-    cat LocalSettings.local-full.php >> LocalSettings.php
+RUN --mount=source=mediawiki-settings/LocalSettings.local-full.php,target=extra-settings.php \
+    cat extra-settings.php >> LocalSettings.php

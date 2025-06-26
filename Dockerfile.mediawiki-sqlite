@@ -88,12 +88,10 @@ RUN tmp/gerrit-install.sh extensions/PageImages REL1_43
 #Install other extensions.
 RUN tmp/gerrit-install.sh extensions/Analytics REL1_43 &&\
     php composer.phar install -d extensions/Analytics --no-dev
+RUN --mount=source=patches/analytics-ext-sqlite-support.diff,target=patch.diff \
+    patch -p1 -d extensions/Analytics < patch.diff
 RUN tmp/github-install.sh Appropedia/extension extensions/Appropedia main &&\
     php composer.phar install -d extensions/Appropedia --no-dev
-RUN --mount=source=patches/appropedia-ext-fix-arraymap.diff,target=patch.diff \
-    patch -p1 -d extensions/Appropedia < patch.diff
-RUN --mount=source=patches/appropedia-ext-remove-special-pages.diff,target=patch.diff \
-    patch -p1 -d extensions/Appropedia < patch.diff
 RUN tmp/github-install.sh wikimedia/mediawiki-extensions-CirrusSearch extensions/CirrusSearch REL1_43 &&\
     php composer.phar install -d extensions/CirrusSearch --no-dev
 RUN tmp/gerrit-install.sh extensions/cldr REL1_43
@@ -106,7 +104,8 @@ RUN tmp/gerrit-install.sh extensions/Gadgets REL1_43
 RUN tmp/gerrit-install.sh extensions/GoogleTagManager REL1_43
 RUN tmp/gerrit-install.sh extensions/GoogleTranslate REL1_43
 RUN tmp/gerrit-install.sh extensions/HTMLPurifier REL1_43 &&\
-    php composer.phar install -d extensions/HTMLPurifier --no-dev
+    php composer.phar install -d extensions/HTMLPurifier --no-dev &&\
+    chown -R www-data:www-data extensions/HTMLPurifier/vendor/ezyang/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer
 RUN tmp/gerrit-install.sh extensions/MultimediaViewer REL1_43
 RUN tmp/gerrit-install.sh extensions/PageLanguage REL1_43
 RUN tmp/gerrit-install.sh extensions/Popups REL1_43
@@ -138,8 +137,8 @@ RUN php maintenance/run.php install appropedia admin --pass appropedia-local --d
 USER root
 
 #Append additional configurations to LocalSettings.php.
-RUN --mount=source=LocalSettings.mediawiki-sqlite.php,target=LocalSettings.mediawiki-sqlite.php \
-    cat LocalSettings.mediawiki-sqlite.php >> LocalSettings.php
+RUN --mount=source=mediawiki-settings/LocalSettings.mediawiki-sqlite.php,target=extra-settings.php \
+    cat extra-settings.php >> LocalSettings.php
 
 #Update the database in preparation for adding content.
 RUN php maintenance/run.php update --quick

@@ -1,0 +1,40 @@
+diff --git a/includes/Analytics.php b/includes/Analytics.php
+index 1b9c1cf..e78859f 100644
+--- a/includes/Analytics.php
++++ b/includes/Analytics.php
+@@ -67,22 +67,22 @@ class Analytics {
+ 		$query = $dbr->newSelectQueryBuilder();
+ 		switch ( $chart ) {
+ 			case 'views':
+-				$query->select( [ "LEFT( ap_timestamp, $timestampLength ) AS timestamp", 'SUM( ap_views ) AS value' ] )
++				$query->select( [ "SUBSTR( ap_timestamp, 1, $timestampLength ) AS timestamp", 'SUM( ap_views ) AS value' ] )
+ 					->from( 'analytics_pageviews' );
+ 				$pageField = 'ap_page';
+ 				break;
+ 			case 'edits':
+-				$query->select( [ "LEFT( rev_timestamp, $timestampLength ) AS timestamp", 'COUNT(*) AS value' ] )
++				$query->select( [ "SUBSTR( rev_timestamp, 1, $timestampLength ) AS timestamp", 'COUNT(*) AS value' ] )
+ 					->from( 'revision' );
+ 				$pageField = 'rev_page';
+ 				break;
+ 			case 'pages':
+-				$query->select( [ "LEFT( rev_timestamp, $timestampLength ) AS timestamp", 'MIN( rev_timestamp ) AS value' ] )
++				$query->select( [ "SUBSTR( rev_timestamp, 1, $timestampLength ) AS timestamp", 'MIN( rev_timestamp ) AS value' ] )
+ 					->from( 'revision' );
+ 				$pageField = 'rev_page';
+ 				break;
+ 			case 'editors':
+-				$query->select( [ "LEFT( rev_timestamp, $timestampLength ) AS timestamp", 'COUNT( DISTINCT rev_actor ) AS value' ] )
++				$query->select( [ "SUBSTR( rev_timestamp, 1, $timestampLength ) AS timestamp", 'COUNT( DISTINCT rev_actor ) AS value' ] )
+ 					->from( 'revision' );
+ 				$pageField = 'rev_page';
+ 				break;
+@@ -98,7 +98,7 @@ class Analytics {
+ 				$query->where( [ $pageField => $pageId ] );
+ 			}
+ 		}
+-		$query->groupBy( "LEFT( timestamp, $timestampLength )" )
++		$query->groupBy( "SUBSTR( timestamp, 1, $timestampLength )" )
+ 			->orderBy( 'timestamp DESC' )
+ 			->limit( $dataPoints );
+ 

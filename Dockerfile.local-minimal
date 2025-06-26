@@ -17,5 +17,5 @@ RUN php maintenance/run.php initSiteStats --update
 # php maintenance/run.php rebuildall #Note: Takes very long and is probably not needed
 
 #Append additional configurations to LocalSettings.php.
-RUN --mount=source=LocalSettings.local-minimal.php,target=LocalSettings.local-minimal.php \
-    cat LocalSettings.local-minimal.php >> LocalSettings.php
+RUN --mount=source=mediawiki-settings/LocalSettings.local-minimal.php,target=extra-settings.php \
+    cat extra-settings.php >> LocalSettings.php
