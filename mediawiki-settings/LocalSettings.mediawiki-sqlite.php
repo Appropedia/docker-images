@@ -225,11 +225,11 @@ wfLoadExtension( 'TextExtracts' );
 
 wfLoadExtension( 'Gadgets' );
 
-wfLoadExtension( 'Elastica' );
+#wfLoadExtension( 'Elastica' );
 
-wfLoadExtension( 'CirrusSearch' );
-$wgSearchType = 'CirrusSearch';
-$wgCirrusSearchExtraFieldsInSearchResults = [ 'category', 'heading' ];
+#wfLoadExtension( 'CirrusSearch' );
+#$wgSearchType = 'CirrusSearch';
+#$wgCirrusSearchExtraFieldsInSearchResults = [ 'category', 'heading' ];
 
 wfLoadExtension( 'CheckUser' );
 $wgGroupPermissions['sysop']['checkuser'] = true;
@@ -447,7 +447,7 @@ $wgGoogleTagManagerSkipGroups = [ 'sysop' ];
 
 wfLoadExtension( 'SemanticMediaWiki' );
 $smwgNamespaceIndex = 104; // Must be BEFORE enableSemantics
-enableSemantics( 'appropedia.org' );
+enableSemantics( 'localhost' );
 $smwgEnabledEditPageHelp = false;
 $smwgQMaxInlineLimit = 10000;
 $smwgQDefaultLimit = 10000;

@@ -13,6 +13,7 @@ RUN --mount=source=$BACKUP_FILE,target=$BACKUP_FILE \
 
 #Run other maintenance scripts after importing the backup.
 RUN php maintenance/run.php rebuildrecentchanges
+RUN php maintenance/run.php rebuildtextindex
 RUN php maintenance/run.php initSiteStats --update
 # php maintenance/run.php rebuildall #Note: Takes very long and is probably not needed
 

@@ -6,15 +6,7 @@
 
 FROM mediawiki:1.43.1
 
-#Configure external repositories and install elasticsearch.
-RUN apt-get update &&\
-    apt-get install -y wget gpg &&\
-    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch |\
-        gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg &&\
-    echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg]"\
-        "https://artifacts.elastic.co/packages/7.x/apt stable main" |\
-        tee /etc/apt/sources.list.d/elastic-7.x.list &&\
-    apt-get update && apt-get install -y elasticsearch
+RUN apt-get update
 
 #Install composer.
 RUN apt-get install -y unzip
@@ -92,14 +84,10 @@ RUN --mount=source=patches/analytics-ext-sqlite-support.diff,target=patch.diff \
     patch -p1 -d extensions/Analytics < patch.diff
 RUN tmp/github-install.sh Appropedia/extension extensions/Appropedia main &&\
     php composer.phar install -d extensions/Appropedia --no-dev
-RUN tmp/github-install.sh wikimedia/mediawiki-extensions-CirrusSearch extensions/CirrusSearch REL1_43 &&\
-    php composer.phar install -d extensions/CirrusSearch --no-dev
 RUN tmp/gerrit-install.sh extensions/cldr REL1_43
 RUN tmp/gerrit-install.sh extensions/CloudflarePurge REL1_43
 RUN tmp/gerrit-install.sh extensions/CookieWarning REL1_43
 RUN tmp/gerrit-install.sh extensions/DiscussionTools REL1_43
-RUN tmp/github-install.sh wikimedia/mediawiki-extensions-Elastica extensions/Elastica REL1_43 &&\
-    php composer.phar install -d extensions/Elastica --no-dev
 RUN tmp/gerrit-install.sh extensions/Gadgets REL1_43
 RUN tmp/gerrit-install.sh extensions/GoogleTagManager REL1_43
 RUN tmp/gerrit-install.sh extensions/GoogleTranslate REL1_43
@@ -146,6 +134,3 @@ RUN php maintenance/run.php update --quick
 #Delete the default main page so that it can be restored with a backup.
 RUN echo Main_Page | php maintenance/run.php deleteBatch
 
-#Configure the startup script.
-COPY server-start /usr/local/bin/
-CMD ["server-start"]
