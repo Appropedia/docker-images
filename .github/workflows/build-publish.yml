@@ -1,0 +1,49 @@
+name: Build and publish docker images
+
+on:
+  schedule:
+    #Run every monday at 8:00 AM UTC.
+    - cron: '0 8 * * 1'
+
+env:
+  DOCKERHUB_USER: ${{ vars.DOCKERHUB_USER }}
+
+jobs:
+  build-publish-mediawiki-sqlite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Build
+        run: >
+          MEDIAWIKI_SQLITE=$DOCKERHUB_USER/mediawiki-sqlite:latest
+          docker compose build mediawiki-sqlite
+      - name: Publish
+        env:
+          DOCKERHUB_PASS: ${{ secrets.dockerhub_pass }}
+        run: |
+          docker login -u $DOCKERHUB_USER -p "$DOCKERHUB_PASS"
+          docker push $DOCKERHUB_USER/mediawiki-sqlite:latest
+  build-publish-local-minimal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: build-publish-mediawiki-sqlite
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Pull base image
+        run: docker pull $DOCKERHUB_USER/mediawiki-sqlite:latest
+      - name: Download content
+        run: wget https://dumps.appropedia.org/current-text.xml.gz
+      - name: Build
+        run: >
+          MEDIAWIKI_SQLITE=$DOCKERHUB_USER/mediawiki-sqlite:latest
+          LOCAL_MINIMAL=$DOCKERHUB_USER/local-minimal:latest
+          docker compose build local-minimal
+      - name: Publish
+        env:
+          DOCKERHUB_PASS: ${{ secrets.dockerhub_pass }}
+        run: |
+          docker login -u $DOCKERHUB_USER -p "$DOCKERHUB_PASS"
+          docker push $DOCKERHUB_USER/local-minimal:latest

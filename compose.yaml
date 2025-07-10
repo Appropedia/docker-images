@@ -1,11 +1,11 @@
 #Docker compose file used for building and running the images contained in this repository.
 services:
   mediawiki-sqlite:
-    image: appropedia-mediawiki-sqlite
+    image: ${MEDIAWIKI_SQLITE:-appropedia-mediawiki-sqlite}
     build:
       dockerfile: Dockerfile.mediawiki-sqlite
   local-minimal:
-    image: appropedia-local-minimal
+    image: ${LOCAL_MINIMAL:-appropedia-local-minimal}
     build:
       dockerfile: Dockerfile.local-minimal
       additional_contexts:
@@ -15,7 +15,7 @@ services:
     ports:
       - 80:80
   local-full:
-    image: appropedia-local-full
+    image: ${LOCAL_FULL:-appropedia-local-full}
     build:
       dockerfile: Dockerfile.local-full
       additional_contexts:
