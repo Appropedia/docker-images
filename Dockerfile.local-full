@@ -9,16 +9,17 @@ FROM mediawiki-sqlite
 RUN --mount=source=patches/import-dump-fix.diff,target=patch.diff \
     patch -p1 < patch.diff
 
-#Populate the server by importing contents from a backup.
+#Populate the server by importing contents from a backup file.
 ARG BACKUP_FILE
 RUN --mount=source=$BACKUP_FILE,target=$BACKUP_FILE \
     php maintenance/run.php importDump --no-updates --uploads $BACKUP_FILE
 
 #Run other maintenance scripts after importing the backup.
 RUN php maintenance/run.php rebuildrecentchanges
+RUN php maintenance/run.php rebuildtextindex
 RUN php maintenance/run.php initSiteStats --update
 # php maintenance/run.php rebuildall #Note: Takes very long and is probably not needed
 
-#Append additional configurations to LocalSettings.php
+#Append additional configurations to LocalSettings.php.
 RUN --mount=source=mediawiki-settings/LocalSettings.local-full.php,target=extra-settings.php \
     cat extra-settings.php >> LocalSettings.php
