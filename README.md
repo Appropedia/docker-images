@@ -1,18 +1,18 @@
-Docker images for replicating the Appropedia wiki.
-==================================================
+Docker images for replicating the Appropedia wiki
+=================================================
 
 This repository contains technical information aimed at developers. The images defined here are
-updated and published automatically at [docker hub](https://hub.docker.com/u/appropedia), and are
+updated and published automatically at [Docker hub](https://hub.docker.com/u/appropedia), and are
 ready for immediate use.
 
 Docker images in this repository:
-- Minimal local image: Includes the mediawiki server configured to run locally. Includes text
+- Minimal local image - Includes the MediaWiki server configured to run locally. Includes text
   from articles only. Images and files are accessed from appropedia.org directly.
-- Full local image: Includes the mediawiki server configured to run locally. Includes text from
+- Full local image - Includes the MediaWiki server configured to run locally. Includes text from
   articles, images and other media files.
 
-Instrucctions for building and running the minimal local image.
----------------------------------------------------------------
+Instructions for building and running the minimal local image
+-------------------------------------------------------------
 
   - Acquire a backup file with the text contents of the wiki from
     [here](https://dumps.appropedia.org/).
