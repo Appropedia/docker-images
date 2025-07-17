@@ -13,3 +13,7 @@ $wgForeignFileRepos[] = [
 	'transformVia404' => false,
 ];
 
+#Disable warnings for deprecated functions and such.
+$wgDevelopmentWarnings = false;
+$wgShowDebug = false;
+

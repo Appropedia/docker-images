@@ -1,2 +1,4 @@
-#Note: No additional configurations for the full local image.
+#Disable warnings for deprecated functions and such.
+$wgDevelopmentWarnings = false;
+$wgShowDebug = false;
 

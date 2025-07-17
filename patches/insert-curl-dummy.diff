@@ -1,0 +1,13 @@
+diff --git a/index.php b/index.php
+index f9cb22c3c4b..b6ddaba61e2 100644
+--- a/index.php
++++ b/index.php
+@@ -34,6 +34,8 @@
+  * @file
+  */
+ 
++require_once 'curl-dummy.php';
++
+ use MediaWiki\Actions\ActionEntryPoint;
+ use MediaWiki\Context\RequestContext;
+ use MediaWiki\EntryPointEnvironment;

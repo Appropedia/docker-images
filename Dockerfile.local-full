@@ -20,6 +20,18 @@ RUN php maintenance/run.php rebuildtextindex
 RUN php maintenance/run.php initSiteStats --update
 # php maintenance/run.php rebuildall #Note: Takes very long and is probably not needed
 
+#If the local server is run without online connectivity, it gets slowed down constantly by
+#attempting connections to external backend systems that time out. Resolve this situation by
+#disabling the curl library so that connections are not attempted in the first place. This is
+#achieved by:
+# - Adding configurations to php in order to disable specific curl functions.
+# - Providing dummy functions that replace the aforementioned ones.
+COPY php-settings/50-disable-curl.ini /usr/local/etc/php/conf.d/
+COPY src/curl-dummy.php ./
+RUN --mount=source=patches/insert-curl-dummy.diff,target=patch.diff \
+    patch -p1 < patch.diff
+#Note: External backend services can be enabled by simply commenting/disabling the lines above.
+
 #Append additional configurations to LocalSettings.php.
 RUN --mount=source=mediawiki-settings/LocalSettings.local-full.php,target=extra-settings.php \
     cat extra-settings.php >> LocalSettings.php
